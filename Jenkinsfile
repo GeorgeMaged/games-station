@@ -5,7 +5,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git 'https://github.com/GeorgeMaged/games-station.git'
             }
         }
 
@@ -17,13 +17,13 @@ pipeline {
             }
         }
 
-      /*  stage('Test') {
+        stage('Test') {
             steps {
                 script {
                     //
                 }
             }
-        }*/
+        }
 
         stage('Deploy') {
             steps {
