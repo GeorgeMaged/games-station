@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Multi-Game Hub</title>
+    <style>
+      /*  body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }*/
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ecf0f1;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(52, 152, 219, 0.1);
+            z-index: -1;
+        }
+        body::before {
+            top: -150px;
+            left: -150px;
+        }
+        body::after {
+            bottom: -150px;
+            right: -150px;
+        }
+        .retro-shape {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.15;
+        }
+        .retro-shape:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            width: 100px;
+            height: 100px;
+            background: #e74c3c;
+            transform: rotate(45deg);
+        }
+        .retro-shape:nth-child(2) {
+            top: 40%;
+            right: 10%;
+            width: 150px;
+            height: 150px;
+            border: 15px solid #f39c12;
+            border-radius: 50%;
+        }
+        .retro-shape:nth-child(3) {
+            bottom: 15%;
+            left: 15%;
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid #2ecc71;
+        }
+        .retro-shape:nth-child(4) {
+            top: 25%;
+            right: 25%;
+            width: 80px;
+            height: 80px;
+            background: #9b59b6;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        .pacman {
+            position: fixed;
+            width: 0px;
+            height: 0px;
+            border-right: 60px solid transparent;
+            border-top: 60px solid #FFFF00;
+            border-left: 60px solid #FFFF00;
+            border-bottom: 60px solid #FFFF00;
+            border-top-left-radius: 60px;
+            border-top-right-radius: 60px;
+            border-bottom-left-radius: 60px;
+            border-bottom-right-radius: 60px;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        .ghost {
+            position: fixed;
+            width: 60px;
+            height: 70px;
+            border-radius: 30px 30px 0 0;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        .ghost::before {
+            content: '';
+            position: absolute;
+            background: inherit;
+            width: 20px;
+            height: 20px;
+            bottom: -10px;
+            left: 0;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 20px 0 0 0, 40px 0 0 0;
+        }
+        .pacman:nth-child(5) {
+            bottom: 10%;
+            right: 5%;
+        }
+        .ghost:nth-child(6) {
+            top: 15%;
+            left: 20%;
+            background: #FF0000;
+        }
+        .ghost:nth-child(7) {
+            bottom: 20%;
+            right: 15%;
+            background: #00FFFF;
+        }
+        .ghost:nth-child(8) {
+            top: 30%;
+            left: 10%;
+            background: #FFA500;
+        }
+       /* .game-container {
+            background-color: #34495e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        } */
+        .game-container {
+            background-color: rgba(52, 73, 94, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        } 
+        canvas, #tictactoe-board {
+            border: 2px solid #2980b9;
+            border-radius: 5px;
+            background-color: #2c3e50;
+            display: block;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #3498db;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        p {
+            font-size: 1.2em;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+        #score, #highScore {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        #controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        button, select {
+            background-color: #2ecc71;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover, select:hover {
+            background-color: #27ae60;
+        }
+        select {
+            background-color: #3498db;
+        }
+        select:hover {
+            background-color: #2980b9;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #34495e;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .message {
+            font-size: 1.5em;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        #tictactoe-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            width: 300px;
+            height: 300px;
+        }
+        .cell {
+            background-color: #2c3e50;
+            border: 2px solid blanchedalmond;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            cursor: pointer;
+        }
+        #game-select {
+            margin-bottom: 20px;
+        }
+        #tictactoe-mode {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="retro-shape"></div>
+    <div class="retro-shape"></div>
+    <div class="retro-shape"></div>
+    <div class="retro-shape"></div>
+    <div class="pacman"></div>
+    <div class="ghost"></div>
+    <div class="ghost"></div>
+    <div class="ghost"></div>
+    <h1>🎮 Multi-Game Hub</h1>
+    <select id="game-select">
+        <option value="snake">Snake</option>
+        <option value="tictactoe">Tic-Tac-Toe</option>
+    </select>
+    <div id="snake-game" class="game-container">
+        <h2>🐍 Snake Game</h2>
+        <div id="controls">
+            <select id="difficultySelect">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+            <button id="startButton">Start Game</button>
+        </div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <p>Use the arrow keys to move the snake.</p>
+        <p>Score: <span id="score">0</span> | High Score: <span id="highScore">0</span></p>
+    </div>
+    <div id="tictactoe-game" class="game-container" style="display: none;">
+        <h2>❌⭕ Tic-Tac-Toe</h2>
+        <select id="tictactoe-mode">
+            <option value="two-player">Two Players</option>
+            <option value="ai">Player vs AI</option>
+        </select>
+        <div id="tictactoe-board"></div>
+        <p id="tictactoe-status"></p>
+        <button id="tictactoe-restart">Restart Game</button>
+    </div>
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <h2 id="gameOverMessage" class="message"></h2>
+            <button id="restartButton">Play Again</button>
+        </div>
+    </div>
+    <script>
+        // Snake Game Logic
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 20;
+        let snake = [{ x: 10, y: 10 }];
+        let direction = { x: 0, y: 0 };
+        let food = { x: 5, y: 5 };
+        let score = 0;
+        let highScore = 0;
+        let interval;
+        let gameRunning = false;
+        let gameSpeed = 100;
+
+        const funnyGameOverMessages = [
+            "Oops! Your snake turned into a pretzel!",
+            "Game over! Your snake went on a diet.",
+            "Yikes! Your snake forgot how to snake.",
+            "Oh snap! Your snake took a wrong turn.",
+            "Bummer! Your snake decided to retire.",
+            "Uh-oh! Your snake got tangled in knots.",
+            "Game over! Your snake went to snake heaven.",
+            "Ouch! Your snake hit the wall of reality.",
+            "Oh no! Your snake's ambition exceeded its ability.",
+            "Game over! Your snake forgot to pack a lunch."
+        ];
+
+        function gameLoop() {
+            moveSnake();
+            if (checkCollision()) {
+                endGame();
+                return;
+            }
+            checkFood();
+            drawGame();
+        }
+
+        function moveSnake() {
+            const newHead = {
+                x: (snake[0].x + direction.x + canvas.width / gridSize) % (canvas.width / gridSize),
+                y: (snake[0].y + direction.y + canvas.height / gridSize) % (canvas.height / gridSize)
+            };
+            snake.unshift(newHead);
+            if (!checkFood()) {
+                snake.pop();
+            }
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkFood() {
+            const head = snake[0];
+            if (head.x === food.x && head.y === food.y) {
+                score += 1;
+                document.getElementById('score').textContent = score;
+                placeFood();
+                return true;
+            }
+            return false;
+        }
+
+        function placeFood() {
+            food = getRandomPosition();
+        }
+
+        function getRandomPosition() {
+            let position;
+            do {
+                position = {
+                    x: Math.floor(Math.random() * canvas.width / gridSize),
+                    y: Math.floor(Math.random() * canvas.height / gridSize)
+                };
+            } while (snake.some(part => part.x === position.x && part.y === position.y));
+            return position;
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw snake
+            ctx.fillStyle = '#3498db';
+            for (const part of snake) {
+                ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 1, gridSize - 1);
+            }
+            
+            // Draw snake eyes
+            const head = snake[0];
+            ctx.fillStyle = 'white';
+            ctx.fillRect(head.x * gridSize + 3, head.y * gridSize + 3, 4, 4);
+            ctx.fillRect(head.x * gridSize + 12, head.y * gridSize + 3, 4, 4);
+            
+            // Draw food
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc((food.x * gridSize) + gridSize/2, (food.y * gridSize) + gridSize/2, gridSize/2, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function endGame() {
+            gameRunning = false;
+            clearInterval(interval);
+            if (score > highScore) {
+                highScore = score;
+                document.getElementById('highScore').textContent = highScore;
+            }
+            showGameOverModal();
+        }
+
+        function showGameOverModal() {
+            const modal = document.getElementById('gameOverModal');
+            const messageElement = document.getElementById('gameOverMessage');
+            const randomMessage = funnyGameOverMessages[Math.floor(Math.random() * funnyGameOverMessages.length)];
+            messageElement.textContent = `${randomMessage}\nYour score: ${score}`;
+            modal.style.display = 'block';
+        }
+
+        function startSnakeGame() {
+            if (gameRunning) return;
+            gameRunning = true;
+            snake = [{ x: 10, y: 10 }];
+            direction = { x: 0, y: 0 };
+            score = 0;
+            document.getElementById('score').textContent = score;
+            placeFood();
+            document.getElementById('gameOverModal').style.display = 'none';
+            clearInterval(interval);
+            interval = setInterval(gameLoop, gameSpeed);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (!gameRunning) return;
+            switch (event.key) {
+                case 'ArrowUp': if (direction.y === 0) direction = { x: 0, y: -1 }; break;
+                case 'ArrowDown': if (direction.y === 0) direction = { x: 0, y: 1 }; break;
+                case 'ArrowLeft': if (direction.x === 0) direction = { x: -1, y: 0 }; break;
+                case 'ArrowRight': if (direction.x === 0) direction = { x: 1, y: 0 }; break;
+            }
+            event.preventDefault();
+        });
+
+        const startButton = document.getElementById('startButton');
+        const difficultySelect = document.getElementById('difficultySelect');
+        const restartButton = document.getElementById('restartButton');
+
+        startButton.addEventListener('click', startSnakeGame);
+        restartButton.addEventListener('click', startSnakeGame);
+
+        difficultySelect.addEventListener('change', () => {
+            switch (difficultySelect.value) {
+                case 'easy':
+                    gameSpeed = 150;
+                    break;
+                case 'medium':
+                    gameSpeed = 100;
+                    break;
+                case 'hard':
+                    gameSpeed = 70;
+                    break;
+            }
+            if (gameRunning) {
+                clearInterval(interval);
+                interval = setInterval(gameLoop, gameSpeed);
+            }
+        });
+
+        // Initial draw
+        drawGame();
+
+        // Tic-Tac-Toe Game Logic
+        const board = document.getElementById('tictactoe-board');
+        const status = document.getElementById('tictactoe-status');
+        const restartTicTacToe = document.getElementById('tictactoe-restart');
+        const modeSelect = document.getElementById('tictactoe-mode');
+        let currentPlayer = 'X';
+        let gameState = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let isAIMode = false;
+
+        const winningConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        function createTicTacToeBoard() {
+            board.innerHTML = ''; // Clear existing board
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.setAttribute('data-cell-index', i);
+                cell.addEventListener('click', handleCellClick);
+                board.appendChild(cell);
+            }
+        }
+
+        function handleCellClick(clickedCellEvent) {
+            const clickedCell = clickedCellEvent.target;
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index'));
+
+            if (gameState[clickedCellIndex] !== '' || !gameActive) {
+                return;
+            }
+
+            gameState[clickedCellIndex] = currentPlayer;
+            clickedCell.textContent = currentPlayer;
+            checkTicTacToeResult();
+
+            if (gameActive && isAIMode && currentPlayer === 'O') {
+                setTimeout(makeAIMove, 500); // Delay AI move for better UX
+            }
+        }
+
+        function makeAIMove() {
+            const availableMoves = gameState.reduce((acc, cell, index) => {
+                if (cell === '') acc.push(index);
+                return acc;
+            }, []);
+
+            if (availableMoves.length > 0) {
+                const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                gameState[randomMove] = 'O';
+                document.querySelector(`[data-cell-index="${randomMove}"]`).textContent = 'O';
+                checkTicTacToeResult();
+            }
+        }
+
+        
+        function checkTicTacToeResult() {
+            let roundWon = false;
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                status.textContent = isAIMode && currentPlayer === 'O' ? "AI wins!" : `Player ${currentPlayer} wins!`;
+                gameActive = false;
+                return;
+            }
+
+            const roundDraw = !gameState.includes('');
+            if (roundDraw) {
+                status.textContent = "It's a draw!";
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            status.textContent = isAIMode && currentPlayer === 'O' ? "AI's turn" : `Player ${currentPlayer}'s turn`;
+        }
+
+        function restartTicTacToeGame() {
+            currentPlayer = 'X';
+            gameState = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            isAIMode = modeSelect.value === 'ai';
+            status.textContent = `Player X's turn`;
+            document.querySelectorAll('.cell').forEach(cell => cell.textContent = '');
+        }
+
+        modeSelect.addEventListener('change', restartTicTacToeGame);
+        restartTicTacToe.addEventListener('click', restartTicTacToeGame);
+
+        // Game selection logic
+        const gameSelect = document.getElementById('game-select');
+        const snakeGame = document.getElementById('snake-game');
+        const tictactoeGame = document.getElementById('tictactoe-game');
+
+        gameSelect.addEventListener('change', () => {
+            if (gameSelect.value === 'snake') {
+                snakeGame.style.display = 'block';
+                tictactoeGame.style.display = 'none';
+            } else {
+                snakeGame.style.display = 'none';
+                tictactoeGame.style.display = 'block';
+                createTicTacToeBoard();
+                restartTicTacToeGame();
+            }
+        });
+
+        // Initialize games
+        createTicTacToeBoard();
+        restartTicTacToeGame();
+        drawGame(); // Initial draw for Snake game
+    </script>
+</body>
+</html>     
