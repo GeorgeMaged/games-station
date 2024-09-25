@@ -17,13 +17,13 @@ pipeline {
             }
         }
 
-        stage('Test') {
+      /*  stage('Test') {
             steps {
                 script {
                     //
                 }
             }
-        }
+        }*/
 
         stage('Deploy') {
             steps {
