@@ -15,13 +15,17 @@ pipeline {
         
         stage('Diagnostics') {
             steps {
+                sh 'pwd'
+                sh 'ls -la'
+                sh 'cat Dockerfile || echo "Dockerfile not found"'
                 sh 'sudo docker --version || true'
                 sh 'sudo docker info || true'
                 sh 'id'
                 sh 'groups'
                 sh 'sudo ls -l /var/run/docker.sock || true'
             }
-        }
+            }
+        
         
         stage('Build Docker Image') {
             steps {
@@ -59,4 +63,6 @@ pipeline {
             sh "sudo docker image prune -f || true"
         }
     }
+
 }
+
