@@ -4,6 +4,7 @@ pipeline {
     environment {
         APP_NAME = "games-everywhere-flask"
         DOCKER_IMAGE = "${APP_NAME}:${BUILD_NUMBER}"
+        WORKSPACE = "/var/lib/jenkins/workspace/games"
     }
     
     stages {
@@ -17,23 +18,24 @@ pipeline {
             steps {
                 sh 'pwd'
                 sh 'ls -la'
-                sh 'cat Dockerfile || echo "Dockerfile not found"'
+                sh 'cat Dockerfile'
                 sh 'sudo docker --version || true'
                 sh 'sudo docker info || true'
                 sh 'id'
                 sh 'groups'
                 sh 'sudo ls -l /var/run/docker.sock || true'
+                sh 'sudo ls -l /var/snap/docker/common/var-lib-docker/tmp/ || true'
             }
-            }
-        
+        }
         
         stage('Build Docker Image') {
             steps {
                 script {
                     try {
-                        sh "sudo docker build -t ${DOCKER_IMAGE} ."
+                        sh "sudo docker build -t ${DOCKER_IMAGE} -f ${WORKSPACE}/Dockerfile ${WORKSPACE}"
                     } catch (exc) {
                         echo "Docker build failed: ${exc.message}"
+                        sh "sudo docker build -t ${DOCKER_IMAGE} -f ${WORKSPACE}/Dockerfile ${WORKSPACE} --debug"
                         currentBuild.result = 'FAILURE'
                         error("Stopping early!")
                     }
@@ -63,6 +65,4 @@ pipeline {
             sh "sudo docker image prune -f || true"
         }
     }
-
 }
-
