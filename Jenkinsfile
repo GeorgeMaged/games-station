@@ -4,7 +4,6 @@ pipeline {
     environment {
         APP_NAME = "games-everywhere-flask"
         DOCKER_IMAGE = "${APP_NAME}:${BUILD_NUMBER}"
-        WORKSPACE = "/var/lib/jenkins/workspace/games"
     }
     
     stages {
@@ -19,12 +18,10 @@ pipeline {
                 sh 'pwd'
                 sh 'ls -la'
                 sh 'cat Dockerfile'
-                sh 'sudo docker --version || true'
-                sh 'sudo docker info || true'
-                sh 'id'
+                sh 'whoami'
                 sh 'groups'
-                sh 'sudo ls -l /var/run/docker.sock || true'
-                sh 'sudo ls -l /var/snap/docker/common/var-lib-docker/tmp/ || true'
+                sh 'docker --version || true'
+                sh 'docker info || true'
             }
         }
         
@@ -32,10 +29,9 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh "sudo docker build -t ${DOCKER_IMAGE} -f ${WORKSPACE}/Dockerfile ${WORKSPACE}"
+                        sh "docker build -t ${DOCKER_IMAGE} ."
                     } catch (exc) {
                         echo "Docker build failed: ${exc.message}"
-                        sh "sudo docker build -t ${DOCKER_IMAGE} -f ${WORKSPACE}/Dockerfile ${WORKSPACE} --debug"
                         currentBuild.result = 'FAILURE'
                         error("Stopping early!")
                     }
@@ -47,9 +43,9 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh "sudo docker stop ${APP_NAME} || true"
-                        sh "sudo docker rm ${APP_NAME} || true"
-                        sh "sudo docker run -d --name ${APP_NAME} -p 8080:8080 ${DOCKER_IMAGE}"
+                        sh "docker stop ${APP_NAME} || true"
+                        sh "docker rm ${APP_NAME} || true"
+                        sh "docker run -d --name ${APP_NAME} -p 8080:8080 ${DOCKER_IMAGE}"
                     } catch (exc) {
                         echo "Deployment failed: ${exc.message}"
                         currentBuild.result = 'FAILURE'
@@ -62,7 +58,7 @@ pipeline {
     
     post {
         always {
-            sh "sudo docker image prune -f || true"
+            sh "docker image prune -f || true"
         }
     }
 }
