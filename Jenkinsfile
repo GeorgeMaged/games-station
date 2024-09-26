@@ -15,9 +15,11 @@ pipeline {
         
         stage('Diagnostics') {
             steps {
-                sh 'docker --version'
-                sh 'docker info'
+                sh 'sudo docker --version || true'
+                sh 'sudo docker info || true'
                 sh 'id'
+                sh 'groups'
+                sh 'sudo ls -l /var/run/docker.sock || true'
             }
         }
         
@@ -25,7 +27,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh "docker build -t ${DOCKER_IMAGE} ."
+                        sh "sudo docker build -t ${DOCKER_IMAGE} ."
                     } catch (exc) {
                         echo "Docker build failed: ${exc.message}"
                         currentBuild.result = 'FAILURE'
@@ -39,9 +41,9 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh "docker stop ${APP_NAME} || true"
-                        sh "docker rm ${APP_NAME} || true"
-                        sh "docker run -d --name ${APP_NAME} -p 8080:8080 ${DOCKER_IMAGE}"
+                        sh "sudo docker stop ${APP_NAME} || true"
+                        sh "sudo docker rm ${APP_NAME} || true"
+                        sh "sudo docker run -d --name ${APP_NAME} -p 8080:8080 ${DOCKER_IMAGE}"
                     } catch (exc) {
                         echo "Deployment failed: ${exc.message}"
                         currentBuild.result = 'FAILURE'
@@ -54,7 +56,7 @@ pipeline {
     
     post {
         always {
-            sh "docker image prune -f || true"
+            sh "sudo docker image prune -f || true"
         }
     }
 }
