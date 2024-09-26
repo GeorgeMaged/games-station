@@ -1,72 +1,44 @@
 pipeline {
     agent any
-
+    
     environment {
-        DOCKER_IMAGE = 'games-everywhere-flask'
-        DOCKER_CONTAINER = 'games-station-container'
+        APP_NAME = "games-everywhere-flask"
+        DOCKER_IMAGE = "${APP_NAME}:${BUILD_NUMBER}"
     }
-
+    
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
-        stage('Build') {
+        
+        stage('Build Docker Image') {
             steps {
                 script {
-                    try {
-                        sh 'docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} .'
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error "Failed to build Docker image: ${e.message}"
-                    }
+                    sh "docker build -t ${DOCKER_IMAGE} ."
                 }
             }
         }
-
-        stage('Test') {
-            steps {
-                script {
-                    // Add your test commands here
-                    // For example:
-                    // sh 'docker run --rm ${DOCKER_IMAGE}:${BUILD_NUMBER} python -m pytest'
-                    echo "Running tests... (placeholder)"
-                }
-            }
-        }
-
+        
         stage('Deploy') {
             steps {
                 script {
-                    try {
-                        // Stop and remove existing container if it exists
-                        sh 'docker stop ${DOCKER_CONTAINER} || true'
-                        sh 'docker rm ${DOCKER_CONTAINER} || true'
-                        
-                        // Run the new container
-                        sh 'docker run -d --name ${DOCKER_CONTAINER} -p 8080:8080 ${DOCKER_IMAGE}:${BUILD_NUMBER}'
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error "Failed to deploy Docker container: ${e.message}"
-                    }
+                    // Stop and remove the existing container (if it exists)
+                    sh "docker stop ${APP_NAME} || true"
+                    sh "docker rm ${APP_NAME} || true"
+                    
+                    // Run the new container
+                    sh "docker run -d --name ${APP_NAME} -p 8080:8080 ${DOCKER_IMAGE}"
                 }
             }
         }
     }
-
+    
     post {
         always {
-            // Clean up old images
-            sh 'docker image prune -f'
-        }
-        failure {
-            // Additional failure handling if needed
-            echo 'The Pipeline failed :('
-        }
-        success {
-            echo 'The Pipeline completed successfully :)'
+            // Clean up old images to save space
+            sh "docker image prune -f"
         }
     }
 }
