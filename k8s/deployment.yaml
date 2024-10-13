@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: games-station
+  namespace: jenkins # Specify the namespace here
+  labels:
+    app: games-station
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: games-station
+  template:
+    metadata:
+      labels:
+        app: games-station
+    spec:
+      containers:
+      - name: games-station
+        image: gogomaged/snake-game:latest  # Updated Docker image
+        ports:
+        - containerPort: 8080
+        env:
+        - name: FLASK_ENV
+          value: production

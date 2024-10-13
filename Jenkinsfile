@@ -1,64 +1,61 @@
 pipeline {
     agent any
-    
+
     environment {
-        APP_NAME = "games-everywhere-flask"
-        DOCKER_IMAGE = "${APP_NAME}:${BUILD_NUMBER}"
+        DOCKER_HUB_REPO = 'gogomaged/snake-game'  // Your Docker Hub repository
+        GIT_REPO_URL = 'https://github.com/GeorgeMaged/games-station.git'  // Your public GitHub repository URL
+        KUBECONFIG_PATH = '/var/lib/jenkins/.kube/config'  // Path to kubeconfig on Jenkins server
+        K8S_DEPLOY_DIR = 'k8s/'  // Directory containing Kubernetes YAML files
     }
-    
+
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                checkout scm
-            }
-        }
-        
-        stage('Diagnostics') {
-            steps {
-                sh 'pwd'
-                sh 'ls -la'
-                sh 'cat Dockerfile'
-                sh 'whoami'
-                sh 'groups'
-                sh 'docker --version || true'
-                sh 'docker info || true'
+                // Clone the Git repository
+                git branch: 'master', url: "${env.GIT_REPO_URL}"
             }
         }
         
         stage('Build Docker Image') {
             steps {
                 script {
-                    try {
-                        sh "docker build -t ${DOCKER_IMAGE} ."
-                    } catch (exc) {
-                        echo "Docker build failed: ${exc.message}"
-                        currentBuild.result = 'FAILURE'
-                        error("Stopping early!")
-                    }
+                    // Build Docker image using the Dockerfile inside the /app directory
+                    dockerImage = docker.build("${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}", "app/")
                 }
             }
         }
         
-        stage('Deploy') {
+       stage('Push Docker Image') {
             steps {
                 script {
-                    try {
-                        sh "docker stop ${APP_NAME} || true"
-                        sh "docker rm ${APP_NAME} || true"
-                        sh "docker run -d --name ${APP_NAME} -p 8080:8080 ${DOCKER_IMAGE}"
-                    } catch (exc) {
-                        echo "Deployment failed: ${exc.message}"
-                        currentBuild.result = 'FAILURE'
-                        error("Stopping early!")
+                    // Push the built Docker image to Docker Hub with credentials
+                    docker.withRegistry('https://index.docker.io/v1/', 'game') {
+                        dockerImage.push()
                     }
                 }
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Update the Kubernetes deployment YAML with the new image tag
+                    sh """
+                    sed -i 's|image: ${DOCKER_HUB_REPO}:.*|image: ${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}|' ${K8S_DEPLOY_DIR}/deployment.yaml
+                    """
+                    // Apply the namespace, deployment, and service YAML files to the EKS cluster
+                    sh """
+                    kubectl --kubeconfig ${env.KUBECONFIG_PATH} apply -f ${K8S_DEPLOY_DIR}/deployment.yaml
+                    kubectl --kubeconfig ${env.KUBECONFIG_PATH} apply -f ${K8S_DEPLOY_DIR}/service.yaml 
+                    """
+                }
+            }
+        }
     }
-    
+
     post {
         always {
-            sh "docker image prune -f || true"
+            cleanWs()  // Clean workspace after build
         }
     }
 }
