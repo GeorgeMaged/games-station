@@ -55,10 +55,10 @@ pipeline {
 
     post {
         success {
-            slackSend(tokenCredentialId: 'george-slack', channel: '#devops-project', color: 'good', message: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.")
+            slackSend(tokenCredentialId: 'george-slack',teamDomain: 'DEPI-PROJECT', channel: '#devops-project', color: 'good', message: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.")
         }
         failure {
-            slackSend(tokenCredentialId: 'george-slack', channel: '#devops-project', color: 'danger', message: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.")
+            slackSend(tokenCredentialId: 'george-slack',teamDomain: 'DEPI-PROJECT', channel: '#devops-project', color: 'danger', message: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.")
         }
         always {
             cleanWs()  // Clean workspace after build
