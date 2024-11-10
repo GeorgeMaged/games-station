@@ -15,15 +15,25 @@ pipeline {
                 git branch: 'master', url: "${env.GIT_REPO_URL}"
             }
         }
-        
+
         stage('Build Docker Image') {
             steps {
                 script {
                     // Build Docker image using the Dockerfile inside the /app directory
-                    dockerImage = docker.build("${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}", "app/")
+                    sh "docker build -t ${DOCKER_HUB_REPO}:${env.BUILD_NUMBER} -f app/Dockerfile app/"
                 }
             }
         }
+        
+        
+    //    stage('Build Docker Image') {
+    //        steps {
+    //            script {
+    //                // Build Docker image using the Dockerfile inside the /app directory
+    //                dockerImage = docker.build("${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}", "app/")
+    //            }
+    //        }
+    //    }
         
        stage('Push Docker Image') {
             steps {
@@ -54,12 +64,7 @@ pipeline {
     }
 
     post {
-        success {
-            slackSend(baseUrl: 'https://hooks.slack.com/services/',tokenCredentialId: 'george-slack',teamDomain: 'depi-projectworkspace', channel: '#devops-project', color: 'good', message: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.")
-        }
-        failure {
-            slackSend(baseUrl: 'https://hooks.slack.com/services/',tokenCredentialId: 'george-slack',teamDomain: 'depi-projectworkspace', channel: '#devops-project', color: 'danger', message: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.")
-        }
+  
         always {
             cleanWs()  // Clean workspace after build
         }
