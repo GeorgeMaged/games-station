@@ -39,8 +39,8 @@ pipeline {
             steps {
                 script {
                     // Push the built Docker image to Docker Hub with credentials
-                    docker.withRegistry('https://index.docker.io/v1/', 'game') {
-                        dockerImage.push()
+                    withDockerRegistry([credentialsId: 'game', url: '']) {
+                         sh "docker push ${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
                     }
                 }
             }
