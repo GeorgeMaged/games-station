@@ -46,6 +46,22 @@ pipeline {
             }
         }
 
+        stage('Configure AWS CLI') {
+            steps {
+                script {
+                    // Use Jenkins credentials (id: 'cred') for AWS CLI configuration
+                    withCredentials([awsCredentials(credentialsId: 'cred')]) {
+                        // Configure AWS CLI with the provided credentials
+                        sh '''
+                        aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
+                        aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
+                        aws configure set region eu-north-1 // Set your desired AWS region
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
