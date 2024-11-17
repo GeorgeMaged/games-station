@@ -49,19 +49,13 @@ pipeline {
         stage('Configure AWS CLI') {
             steps {
                 script {
-                    // Use Jenkins credentials (id: 'cred') for AWS CLI configuration
-                    withCredentials([string(credentialsId: 'cred', variable: 'AWS_CREDENTIALS')]) {
-                        // Extract AWS access key and secret key from the credentials
-                        def aws_credentials = sh(script: "echo ${AWS_CREDENTIALS}", returnStdout: true).trim()
-
-                        // Set AWS CLI config using shell commands
+                    // Use AWS credentials (id: 'cred') with the 'withAWS' step
+                    withAWS(credentials: 'cred') {
+                        // Now you have access to AWS CLI with the configured credentials
                         sh """
-                        export AWS_ACCESS_KEY_ID=${aws_credentials.split(',')[0]}
-                        export AWS_SECRET_ACCESS_KEY=${aws_credentials.split(',')[1]}
-                        export AWS_DEFAULT_REGION=eu-north-1 // Replace with your region
                         aws configure set aws_access_key_id \${AWS_ACCESS_KEY_ID}
                         aws configure set aws_secret_access_key \${AWS_SECRET_ACCESS_KEY}
-                        aws configure set region \${AWS_DEFAULT_REGION}
+                        aws configure set region eu-north-1  // Replace with your region
                         """
                     }
                 }
