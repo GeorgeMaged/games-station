@@ -50,15 +50,15 @@ pipeline {
             steps {
                 script {
                     // Validate Kubernetes config and update deployment file
-                    sh "kubectl --kubeconfig ${env.KUBECONFIG_PATH} get nodes"
+                    sh "kubectl get nodes"
                     // Update the Kubernetes deployment YAML with the new image tag
                     sh """
                     sed -i 's|image: ${DOCKER_HUB_REPO}:.*|image: ${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}|' ${K8S_DEPLOY_DIR}/deployment.yaml
                     """
                     // Apply the namespace, deployment, and service YAML files to the EKS cluster
                     sh """
-                    kubectl --kubeconfig ${env.KUBECONFIG_PATH} apply -f ${K8S_DEPLOY_DIR}/deployment.yaml
-                    kubectl --kubeconfig ${env.KUBECONFIG_PATH} apply -f ${K8S_DEPLOY_DIR}/service.yaml 
+                    kubectl apply -f ${K8S_DEPLOY_DIR}/deployment.yaml
+                    kubectl apply -f ${K8S_DEPLOY_DIR}/service.yaml 
                     """
                 }
             }
