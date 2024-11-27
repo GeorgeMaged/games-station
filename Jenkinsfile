@@ -46,21 +46,7 @@ pipeline {
             }
         }
 
-        stage('Configure AWS CLI') {
-            steps {
-                script {
-                    // Use AWS credentials (id: 'cred') with the 'withAWS' step
-                    withAWS(credentials: 'cred') {
-                        // Now you have access to AWS CLI with the configured credentials
-                        sh """
-                        aws configure set aws_access_key_id \${AWS_ACCESS_KEY_ID}
-                        aws configure set aws_secret_access_key \${AWS_SECRET_ACCESS_KEY}
-                        aws configure set region eu-north-1  // Replace with your region
-                        """
-                    }
-                }
-            }
-        }
+ 
 
         stage('Deploy to Kubernetes') {
             steps {
