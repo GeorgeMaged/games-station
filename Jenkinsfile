@@ -61,6 +61,7 @@ pipeline {
                           """
                     // Apply the namespace, deployment, and service YAML files to the EKS cluster
                           sh """
+                          kubectl create namespace jenkins --dry-run=client -o yaml | kubectl apply -f -
                           kubectl apply -f ${K8S_DEPLOY_DIR}/deployment.yaml
                           kubectl apply -f ${K8S_DEPLOY_DIR}/service.yaml 
                          """
