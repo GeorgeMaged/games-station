@@ -26,14 +26,6 @@ pipeline {
         }
         
         
-    //    stage('Build Docker Image') {
-    //        steps {
-    //            script {
-    //                // Build Docker image using the Dockerfile inside the /app directory
-    //                dockerImage = docker.build("${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}", "app/")
-    //            }
-    //        }
-    //    }
         
        stage('Push Docker Image') {
             steps {
@@ -54,12 +46,9 @@ pipeline {
                      // Authenticate with AWS and set up kubectl context
                     withAWS(credentials: 'pipe') {
                         // Ensure kubeconfig is available
-                        sh """
-                        aws eks --region eu-north-1 update-kubeconfig --name eks-cluster --kubeconfig ${KUBECONFIG_PATH}
-                        """
-                    }
-                    // Validate Kubernetes config and update deployment file
-                 //   sh "kubectl get nodes"
+                       // Use the AWS EKS plugin to configure kubectl with AWS credentials and cluster info
+                    withEksKubeconfig(credentialsId: 'aws-credentials', clusterName: 'eks-cluster', region: 'us-west-2') {
+
                     // Update the Kubernetes deployment YAML with the new image tag
                     sh """
                     sed -i 's|image: ${DOCKER_HUB_REPO}:.*|image: ${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}|' ${K8S_DEPLOY_DIR}/deployment.yaml
@@ -69,8 +58,10 @@ pipeline {
                     kubectl apply -f ${K8S_DEPLOY_DIR}/deployment.yaml
                     kubectl apply -f ${K8S_DEPLOY_DIR}/service.yaml 
                     """
+                    }
                 }
             }
+                
         }
     }
 
