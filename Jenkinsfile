@@ -53,7 +53,7 @@ pipeline {
                        // Use the AWS EKS plugin to configure kubectl with AWS credentials and cluster info
                 //    withEksKubeconfig(credentialsId: 'pipe', clusterName: 'eks-cluster', region: 'eu-north-1') {
                      sh """
-                     aws eks update-kubeconfig --region eu-north-1--name eks-cluster
+                     aws eks update-kubeconfig --region eu-north-1 --name eks-cluster
                      """
                     // Update the Kubernetes deployment YAML with the new image tag
                           sh """
