@@ -51,6 +51,13 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                     // Authenticate with AWS and set up kubectl context
+                    withAWS(credentials: 'pipe') {
+                        // Ensure kubeconfig is available
+                        sh """
+                        aws eks --region eu-north-1 update-kubeconfig --name eks-cluster --kubeconfig ${KUBECONFIG_PATH}
+                        """
+                    }
                     // Validate Kubernetes config and update deployment file
                  //   sh "kubectl get nodes"
                     // Update the Kubernetes deployment YAML with the new image tag
