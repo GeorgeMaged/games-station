@@ -12,6 +12,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Clone the Git repository
+                cleanWs()
                 git branch: 'master', url: "${env.GIT_REPO_URL}"
             }
         }
