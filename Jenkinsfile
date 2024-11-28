@@ -52,7 +52,9 @@ pipeline {
                         // Ensure kubeconfig is available
                        // Use the AWS EKS plugin to configure kubectl with AWS credentials and cluster info
                 //    withEksKubeconfig(credentialsId: 'pipe', clusterName: 'eks-cluster', region: 'eu-north-1') {
-
+                     sh """
+                     aws eks update-kubeconfig --region eu-north-1--name eks-cluster
+                     """
                     // Update the Kubernetes deployment YAML with the new image tag
                           sh """
                           sed -i 's|image: ${DOCKER_HUB_REPO}:.*|image: ${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}|' ${K8S_DEPLOY_DIR}/deployment.yaml
