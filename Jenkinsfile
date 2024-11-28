@@ -43,10 +43,15 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                     sh '''
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        unzip awscliv2.zip
+                        sudo ./aws/install
+                        '''
                      // Authenticate with AWS and set up kubectl context
                         // Ensure kubeconfig is available
                        // Use the AWS EKS plugin to configure kubectl with AWS credentials and cluster info
-                    withEksKubeconfig(credentialsId: 'pipe', clusterName: 'eks-cluster', region: 'eu-north-1') {
+                //    withEksKubeconfig(credentialsId: 'pipe', clusterName: 'eks-cluster', region: 'eu-north-1') {
 
                     // Update the Kubernetes deployment YAML with the new image tag
                           sh """
@@ -57,7 +62,7 @@ pipeline {
                           kubectl apply -f ${K8S_DEPLOY_DIR}/deployment.yaml
                           kubectl apply -f ${K8S_DEPLOY_DIR}/service.yaml 
                          """
-                    }
+                    
                 }
             }
                 
