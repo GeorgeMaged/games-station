@@ -9,13 +9,37 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Install Git') {
             steps {
-                // Clone the Git repository
-                cleanWs()
-                git branch: 'master', url: "${env.GIT_REPO_URL}"
+                script {
+                    // Install Git (for Debian-based containers)
+                    sh 'apt-get update && apt-get install -y git'
+                    // Or for Alpine-based containers:
+                    // sh 'apk add --no-cache git'
+                }
             }
         }
+
+        stage('Checkout Code') {
+            steps {
+                script {
+                    // Clone the repository if it hasn't been cloned already
+                    if (!fileExists('.git')) {
+                        sh 'git clone https://github.com/GeorgeMaged/games-station.git'
+                    } else {
+                        // Pull latest changes if the repository already exists
+                        sh 'git pull origin master'
+                    }
+                }
+            }
+        }
+   //     stage('Clone Repository') {
+   //         steps {
+   //             // Clone the Git repository
+   //             cleanWs()
+   //             git branch: 'master', url: "${env.GIT_REPO_URL}"
+   //         }
+   //     }
 
         stage('Build Docker Image') {
             steps {
